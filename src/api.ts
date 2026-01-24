@@ -32,7 +32,15 @@ interface StreamDelta {
 }
 
 export function getPreferences(): Preferences {
-  return getPreferenceValues<Preferences>();
+  const prefs = getPreferenceValues<Preferences>();
+
+  if (!prefs.token) {
+    throw new Error(
+      "API token not configured. Please set your Clawdbot gateway token in the extension preferences.",
+    );
+  }
+
+  return prefs;
 }
 
 export async function sendMessage(
