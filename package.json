@@ -4,7 +4,7 @@
   "title": "Clawdbot",
   "description": "Chat with your local Clawdbot AI assistant",
   "icon": "icon.png",
-  "author": "jeffbernard",
+  "author": "jeff_bernard",
   "categories": ["Productivity", "Developer Tools"],
   "license": "MIT",
   "commands": [
@@ -26,6 +26,18 @@
       "name": "chat",
       "title": "Chat with Clawdbot",
       "description": "Open a conversation with Clawdbot",
+      "mode": "view"
+    },
+    {
+      "name": "clipboard",
+      "title": "Ask About Clipboard",
+      "description": "Ask Clawdbot about your clipboard content",
+      "mode": "view"
+    },
+    {
+      "name": "selected-text",
+      "title": "Process Selected Text",
+      "description": "Summarize, explain, translate, or improve selected text",
       "mode": "view"
     }
   ],

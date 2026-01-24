@@ -45,7 +45,6 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
 
-
 function ConversationView({
   conversation,
   onUpdate,
@@ -118,7 +117,8 @@ function ConversationView({
       showToast({
         style: Toast.Style.Failure,
         title: "Error",
-        message: error instanceof Error ? error.message : "Failed to send message",
+        message:
+          error instanceof Error ? error.message : "Failed to send message",
       });
     } finally {
       setIsLoading(false);
@@ -134,7 +134,14 @@ function ConversationView({
 
   // Add streaming message at the top if present
   const allMessages = streamingContent
-    ? [{ role: "assistant" as const, content: streamingContent, timestamp: Date.now() }, ...displayMessages]
+    ? [
+        {
+          role: "assistant" as const,
+          content: streamingContent,
+          timestamp: Date.now(),
+        },
+        ...displayMessages,
+      ]
     : displayMessages;
 
   return (
@@ -146,7 +153,11 @@ function ConversationView({
       onSearchTextChange={setInput}
       actions={
         <ActionPanel>
-          <Action title="Send Message" icon={Icon.Message} onAction={handleSend} />
+          <Action
+            title="Send Message"
+            icon={Icon.Message}
+            onAction={handleSend}
+          />
           {lastAssistantMessage && (
             <Action.CopyToClipboard
               title="Copy Last Response"
@@ -164,7 +175,11 @@ function ConversationView({
           icon={Icon.Message}
           actions={
             <ActionPanel>
-              <Action title="Send Message" icon={Icon.Message} onAction={handleSend} />
+              <Action
+                title="Send Message"
+                icon={Icon.Message}
+                onAction={handleSend}
+              />
             </ActionPanel>
           }
         />
@@ -174,7 +189,11 @@ function ConversationView({
             key={`${msg.timestamp}-${index}`}
             icon={msg.role === "user" ? Icon.Person : Icon.Stars}
             title={msg.role === "user" ? "You" : "Clawdbot"}
-            subtitle={msg.content.length > 80 ? msg.content.slice(0, 80) + "..." : msg.content}
+            subtitle={
+              msg.content.length > 80
+                ? msg.content.slice(0, 80) + "..."
+                : msg.content
+            }
             accessories={[
               {
                 text: new Date(msg.timestamp).toLocaleTimeString([], {
@@ -185,7 +204,11 @@ function ConversationView({
             ]}
             actions={
               <ActionPanel>
-                <Action title="Send Message" icon={Icon.Message} onAction={handleSend} />
+                <Action
+                  title="Send Message"
+                  icon={Icon.Message}
+                  onAction={handleSend}
+                />
                 <Action.CopyToClipboard
                   title="Copy This Message"
                   content={msg.content}
@@ -194,7 +217,10 @@ function ConversationView({
                 <Action.CopyToClipboard
                   title="Copy Full Conversation"
                   content={currentConv.messages
-                    .map((m) => `${m.role === "user" ? "You" : "Clawdbot"}: ${m.content}`)
+                    .map(
+                      (m) =>
+                        `${m.role === "user" ? "You" : "Clawdbot"}: ${m.content}`,
+                    )
                     .join("\n\n")}
                   shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
                 />
@@ -237,7 +263,9 @@ export default function Command() {
       updatedAt: Date.now(),
     };
 
-    push(<ConversationView conversation={newConv} onUpdate={updateConversation} />);
+    push(
+      <ConversationView conversation={newConv} onUpdate={updateConversation} />,
+    );
   }
 
   async function deleteConversation(id: string) {
@@ -248,7 +276,9 @@ export default function Command() {
   }
 
   function openConversation(conv: Conversation) {
-    push(<ConversationView conversation={conv} onUpdate={updateConversation} />);
+    push(
+      <ConversationView conversation={conv} onUpdate={updateConversation} />,
+    );
   }
 
   return (
@@ -258,7 +288,11 @@ export default function Command() {
         title="New Conversation"
         actions={
           <ActionPanel>
-            <Action title="Start New Chat" icon={Icon.Message} onAction={createNewConversation} />
+            <Action
+              title="Start New Chat"
+              icon={Icon.Message}
+              onAction={createNewConversation}
+            />
           </ActionPanel>
         }
       />
@@ -277,7 +311,11 @@ export default function Command() {
               ]}
               actions={
                 <ActionPanel>
-                  <Action title="Open" icon={Icon.ArrowRight} onAction={() => openConversation(conv)} />
+                  <Action
+                    title="Open"
+                    icon={Icon.ArrowRight}
+                    onAction={() => openConversation(conv)}
+                  />
                   <Action
                     title="Delete"
                     icon={Icon.Trash}

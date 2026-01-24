@@ -37,7 +37,7 @@ export function getPreferences(): Preferences {
 
 export async function sendMessage(
   messages: Message[],
-  onStream?: (chunk: string) => void
+  onStream?: (chunk: string) => void,
 ): Promise<string> {
   const prefs = getPreferences();
   const url = `${prefs.endpoint}/v1/chat/completions`;
@@ -69,28 +69,31 @@ export async function sendMessage(
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullContent = "";
+    let done = false;
 
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+    while (!done) {
+      const result = await reader.read();
+      done = result.done;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n");
+      if (result.value) {
+        const chunk = decoder.decode(result.value, { stream: true });
+        const lines = chunk.split("\n");
 
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const data = line.slice(6);
-          if (data === "[DONE]") continue;
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") continue;
 
-          try {
-            const parsed: StreamDelta = JSON.parse(data);
-            const content = parsed.choices[0]?.delta?.content;
-            if (content) {
-              fullContent += content;
-              onStream(content);
+            try {
+              const parsed: StreamDelta = JSON.parse(data);
+              const content = parsed.choices[0]?.delta?.content;
+              if (content) {
+                fullContent += content;
+                onStream(content);
+              }
+            } catch {
+              // Skip unparseable lines
             }
-          } catch {
-            // Skip unparseable lines
           }
         }
       }

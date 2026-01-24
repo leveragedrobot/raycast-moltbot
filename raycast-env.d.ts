@@ -24,6 +24,10 @@ declare namespace Preferences {
   export type Ask = ExtensionPreferences & {}
   /** Preferences accessible in the `chat` command */
   export type Chat = ExtensionPreferences & {}
+  /** Preferences accessible in the `clipboard` command */
+  export type Clipboard = ExtensionPreferences & {}
+  /** Preferences accessible in the `selected-text` command */
+  export type SelectedText = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -34,5 +38,9 @@ declare namespace Arguments {
 }
   /** Arguments passed to the `chat` command */
   export type Chat = {}
+  /** Arguments passed to the `clipboard` command */
+  export type Clipboard = {}
+  /** Arguments passed to the `selected-text` command */
+  export type SelectedText = {}
 }
 

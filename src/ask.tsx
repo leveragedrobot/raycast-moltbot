@@ -15,7 +15,13 @@ interface AskArguments {
   question?: string;
 }
 
-function ResultView({ question, answer }: { question: string; answer: string }) {
+function ResultView({
+  question,
+  answer,
+}: {
+  question: string;
+  answer: string;
+}) {
   const markdown = `## Question
 ${question}
 
@@ -64,7 +70,10 @@ function AskForm({ initialQuestion }: { initialQuestion?: string }) {
 
   async function handleSubmit() {
     if (!question.trim()) {
-      showToast({ style: Toast.Style.Failure, title: "Please enter a question" });
+      showToast({
+        style: Toast.Style.Failure,
+        title: "Please enter a question",
+      });
       return;
     }
 
@@ -80,7 +89,8 @@ function AskForm({ initialQuestion }: { initialQuestion?: string }) {
       showToast({
         style: Toast.Style.Failure,
         title: "Error",
-        message: error instanceof Error ? error.message : "Failed to get response",
+        message:
+          error instanceof Error ? error.message : "Failed to get response",
       });
     } finally {
       setIsLoading(false);
@@ -112,7 +122,9 @@ function AskForm({ initialQuestion }: { initialQuestion?: string }) {
   );
 }
 
-export default function Command(props: LaunchProps<{ arguments: AskArguments }>) {
+export default function Command(
+  props: LaunchProps<{ arguments: AskArguments }>,
+) {
   const initialQuestion = props.arguments?.question;
 
   // If question provided as argument, ask immediately
