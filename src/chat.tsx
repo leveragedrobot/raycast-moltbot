@@ -8,13 +8,14 @@ import {
   Toast,
   useNavigation,
 } from "@raycast/api";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { sendMessage } from "./api";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: number;
+  isStreaming?: boolean;
 }
 
 interface Conversation {
@@ -56,6 +57,9 @@ function ConversationView({
   const [isLoading, setIsLoading] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [currentConv, setCurrentConv] = useState(conversation);
+  const streamingRef = useRef("");
+  const lastUpdateRef = useRef(0);
+  const streamingTimestamp = useRef(Date.now());
 
   useEffect(() => {
     setCurrentConv(conversation);
@@ -85,6 +89,9 @@ function ConversationView({
     onUpdate(updatedConversation);
     setIsLoading(true);
     setStreamingContent("");
+    streamingRef.current = "";
+    lastUpdateRef.current = 0;
+    streamingTimestamp.current = Date.now();
 
     try {
       const apiMessages = updatedMessages.map((m) => ({
@@ -95,8 +102,18 @@ function ConversationView({
       let fullResponse = "";
       await sendMessage(apiMessages, (chunk) => {
         fullResponse += chunk;
-        setStreamingContent(fullResponse);
+        streamingRef.current = fullResponse;
+
+        // Throttle UI updates to every 100ms to prevent flickering
+        const now = Date.now();
+        if (now - lastUpdateRef.current > 100) {
+          lastUpdateRef.current = now;
+          setStreamingContent(fullResponse);
+        }
       });
+
+      // Final update to ensure all content is shown
+      setStreamingContent(fullResponse);
 
       const assistantMessage: Message = {
         role: "assistant",
@@ -129,20 +146,27 @@ function ConversationView({
     .reverse()
     .find((m) => m.role === "assistant");
 
-  // Show messages newest first
-  const displayMessages = [...currentConv.messages].reverse();
+  // Memoize reversed messages to prevent unnecessary re-renders
+  const displayMessages = useMemo(
+    () => [...currentConv.messages].reverse(),
+    [currentConv.messages],
+  );
 
-  // Add streaming message at the top if present
-  const allMessages = streamingContent
-    ? [
+  // Memoize the combined messages array
+  const allMessages = useMemo(() => {
+    if (streamingContent) {
+      return [
         {
           role: "assistant" as const,
           content: streamingContent,
-          timestamp: Date.now(),
+          timestamp: streamingTimestamp.current,
+          isStreaming: true,
         },
         ...displayMessages,
-      ]
-    : displayMessages;
+      ];
+    }
+    return displayMessages;
+  }, [streamingContent, displayMessages]);
 
   return (
     <List
@@ -151,6 +175,7 @@ function ConversationView({
       searchBarPlaceholder="Type a message and press Enter..."
       searchText={input}
       onSearchTextChange={setInput}
+      isShowingDetail
       actions={
         <ActionPanel>
           <Action
@@ -173,6 +198,9 @@ function ConversationView({
           title="Start a conversation"
           subtitle="Type above and press Enter"
           icon={Icon.Message}
+          detail={
+            <List.Item.Detail markdown="Type a message above and press **Enter** to start chatting with Clawdbot." />
+          }
           actions={
             <ActionPanel>
               <Action
@@ -186,22 +214,18 @@ function ConversationView({
       ) : (
         allMessages.map((msg, index) => (
           <List.Item
-            key={`${msg.timestamp}-${index}`}
+            key={msg.isStreaming ? "streaming" : `${msg.timestamp}-${index}`}
             icon={msg.role === "user" ? Icon.Person : Icon.Stars}
             title={msg.role === "user" ? "You" : "Clawdbot"}
-            subtitle={
-              msg.content.length > 80
-                ? msg.content.slice(0, 80) + "..."
-                : msg.content
+            subtitle={new Date(msg.timestamp).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+            detail={
+              <List.Item.Detail
+                markdown={`**${msg.role === "user" ? "You" : "Clawdbot"}**\n\n${msg.content}`}
+              />
             }
-            accessories={[
-              {
-                text: new Date(msg.timestamp).toLocaleTimeString([], {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }),
-              },
-            ]}
             actions={
               <ActionPanel>
                 <Action
