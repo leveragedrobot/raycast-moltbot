@@ -4,7 +4,7 @@
   "title": "Clawdbot",
   "description": "Chat with your local Clawdbot AI assistant",
   "icon": "icon.png",
-  "author": "jeff_bernard",
+  "author": "leveragedrobot",
   "categories": ["Productivity", "Developer Tools"],
   "license": "MIT",
   "commands": [
