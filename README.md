@@ -40,17 +40,7 @@ The gateway will hot-reload the config automatically.
 
 Your gateway token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`.
 
-### 3. Configure the Extension
-
-When you first run a command, Raycast will prompt for:
-
-| Setting | Default | Description |
-|---------|---------|-------------|
-| API Endpoint | `http://127.0.0.1:18789` | Your Clawdbot gateway URL |
-| API Token | (required) | Your gateway auth token |
-| Agent ID | `main` | Which Clawdbot agent to use |
-
-#### Finding Your API Token
+### 3. Find Your API Token
 
 Your token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`:
 
@@ -58,24 +48,96 @@ Your token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`:
 cat ~/.clawdbot/clawdbot.json | grep -A 2 '"auth"' | grep token
 ```
 
-### 4. Remote Access via Tailscale (Optional)
+### 4. Choose Your Connection Method
 
-If Clawdbot runs on a different machine, you can access it securely via Tailscale:
+When you first run a command, Raycast will prompt for your API Endpoint and Token. The endpoint depends on where Clawdbot is running relative to Raycast:
 
-1. **On the machine running Clawdbot**, set up Tailscale serve:
+#### Option A: Same Machine (Local)
+
+**Use when:** Raycast and Clawdbot are on the same computer.
+
+| Setting | Value |
+|---------|-------|
+| API Endpoint | `http://127.0.0.1:18789` |
+
+This is the default - no configuration changes needed on Clawdbot.
+
+---
+
+#### Option B: Local Network (Same WiFi/LAN)
+
+**Use when:** Clawdbot runs on another computer on your home/office network.
+
+| Setting | Value |
+|---------|-------|
+| API Endpoint | `http://<clawdbot-machine-ip>:18789` |
+
+**Setup required on the Clawdbot machine:**
+
+1. Find the machine's local IP:
+   ```bash
+   ipconfig getifaddr en0   # WiFi
+   # or
+   ipconfig getifaddr en1   # Ethernet
+   ```
+
+2. Edit `~/.clawdbot/clawdbot.json` and change the gateway bind setting:
+   ```json
+   {
+     "gateway": {
+       "bind": "0.0.0.0"
+     }
+   }
+   ```
+
+3. Restart Clawdbot gateway for changes to take effect.
+
+4. Use the local IP as your endpoint, e.g., `http://192.168.1.50:18789`
+
+> **Note:** This exposes the gateway to your local network. Anyone on the same network could connect (though they'd still need your token).
+
+---
+
+#### Option C: Remote via Tailscale (Recommended for Remote Access)
+
+**Use when:** You want secure access from anywhere - home, office, mobile, etc.
+
+| Setting | Value |
+|---------|-------|
+| API Endpoint | `https://<machine-name>.<tailnet>.ts.net` |
+
+**Setup required on the Clawdbot machine:**
+
+1. Install [Tailscale](https://tailscale.com) on both machines and sign in to the same account.
+
+2. On the Clawdbot machine, set up Tailscale serve:
    ```bash
    tailscale serve --bg 18789
    ```
 
-2. **Get your Tailscale serve URL**:
+3. Get your serve URL:
    ```bash
    tailscale serve status
    ```
-   This will show something like: `https://machine-name.tailnet.ts.net`
+   Output: `https://machine-name.tailca3a37.ts.net`
 
-3. **Use that URL as your API Endpoint** in Raycast preferences.
+4. Use that URL as your API Endpoint.
 
-This keeps the gateway secure (only accessible on your Tailscale network) while allowing access from any of your devices.
+**Benefits:**
+- Encrypted connection (HTTPS)
+- Works from anywhere (coffee shop, mobile hotspot, etc.)
+- Only accessible to devices on your Tailscale network
+- No need to open firewall ports
+
+---
+
+#### Connection Method Comparison
+
+| Method | Security | Works Remotely | Setup Complexity |
+|--------|----------|----------------|------------------|
+| Local | High (localhost only) | No | None |
+| Local Network | Medium (LAN exposure) | No | Low |
+| Tailscale | High (encrypted, private network) | Yes | Medium |
 
 ## Commands
 
