@@ -8,6 +8,8 @@ Chat with your local [Clawdbot](https://clawd.bot) AI assistant directly from Ra
 - **Chat with Clawdbot** - Persistent conversations with history
 - **Ask About Clipboard** - Analyze clipboard content with custom prompts
 - **Process Selected Text** - Summarize, explain, translate, fix grammar, and more
+- **Gateway Status** - Check connection health and troubleshoot
+- **Open Webchat** - Launch the Clawdbot web UI in your browser
 
 ## Requirements
 
@@ -172,6 +174,53 @@ Select text in any app, then run this command to:
 - Make Bullet Points
 
 **Tip:** Assign a keyboard shortcut in Raycast preferences for quick access.
+
+### Gateway Status
+Check if the Clawdbot gateway is reachable and view connection details:
+- Connection status (healthy/unreachable)
+- Endpoint URL and latency
+- Troubleshooting tips if connection fails
+
+### Open Webchat
+Quickly launch the Clawdbot web UI in your default browser. Opens the same URL configured as your API Endpoint.
+
+## Webchat Setup (Remote Access)
+
+When accessing the Clawdbot web UI from a different machine (via Tailscale or local network), you'll need to complete device pairing.
+
+### Initial Connection
+
+1. Open the webchat URL in your browser (e.g., `https://machine-name.tailca3a37.ts.net`)
+
+2. In the **Gateway Access** section:
+   - **WebSocket URL**: Should auto-populate (e.g., `wss://machine-name.tailca3a37.ts.net`)
+   - **Gateway Token**: Enter your token from `~/.clawdbot/clawdbot.json` (`gateway.auth.token`)
+   - **Default Session Key**: `main` (or your preferred agent)
+
+3. Click **Connect**
+
+### Device Pairing
+
+If you see "disconnected (1008): pairing required", your browser needs to be approved as a trusted device:
+
+**Option A: Approve from the Clawdbot machine**
+
+On the machine running Clawdbot, open the local web UI (`http://127.0.0.1:18789`) and approve the pending device request.
+
+**Option B: Approve via SSH**
+
+Check for pending requests:
+```bash
+cat ~/.clawdbot/devices/pending.json
+```
+
+If there's a pending request, you can approve it by moving it to paired.json (requires generating a token) or restart the gateway and re-initiate pairing from the web UI.
+
+### Verifying Connection
+
+Once connected, the web UI should show:
+- **Status**: Connected (green)
+- **Health**: Online
 
 ## Troubleshooting
 

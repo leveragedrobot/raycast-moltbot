@@ -28,6 +28,10 @@ declare namespace Preferences {
   export type Clipboard = ExtensionPreferences & {}
   /** Preferences accessible in the `selected-text` command */
   export type SelectedText = ExtensionPreferences & {}
+  /** Preferences accessible in the `status` command */
+  export type Status = ExtensionPreferences & {}
+  /** Preferences accessible in the `open-webchat` command */
+  export type OpenWebchat = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -42,5 +46,9 @@ declare namespace Arguments {
   export type Clipboard = {}
   /** Arguments passed to the `selected-text` command */
   export type SelectedText = {}
+  /** Arguments passed to the `status` command */
+  export type Status = {}
+  /** Arguments passed to the `open-webchat` command */
+  export type OpenWebchat = {}
 }
 
