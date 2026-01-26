@@ -36,11 +36,7 @@ Add this to your `~/.clawdbot/clawdbot.json`:
 
 The gateway will hot-reload the config automatically.
 
-### 2. Get Your API Token
-
-Your gateway token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`.
-
-### 3. Find Your API Token
+### 2. Find Your API Token
 
 Your token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`:
 
@@ -48,7 +44,7 @@ Your token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`:
 cat ~/.clawdbot/clawdbot.json | grep -A 2 '"auth"' | grep token
 ```
 
-### 4. Choose Your Connection Method
+### 3. Choose Your Connection Method
 
 When you first run a command, Raycast will prompt for your API Endpoint and Token. The endpoint depends on where Clawdbot is running relative to Raycast:
 
