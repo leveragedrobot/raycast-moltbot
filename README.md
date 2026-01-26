@@ -50,6 +50,33 @@ When you first run a command, Raycast will prompt for:
 | API Token | (required) | Your gateway auth token |
 | Agent ID | `main` | Which Clawdbot agent to use |
 
+#### Finding Your API Token
+
+Your token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`:
+
+```bash
+cat ~/.clawdbot/clawdbot.json | grep -A 2 '"auth"' | grep token
+```
+
+### 4. Remote Access via Tailscale (Optional)
+
+If Clawdbot runs on a different machine, you can access it securely via Tailscale:
+
+1. **On the machine running Clawdbot**, set up Tailscale serve:
+   ```bash
+   tailscale serve --bg 18789
+   ```
+
+2. **Get your Tailscale serve URL**:
+   ```bash
+   tailscale serve status
+   ```
+   This will show something like: `https://machine-name.tailnet.ts.net`
+
+3. **Use that URL as your API Endpoint** in Raycast preferences.
+
+This keeps the gateway secure (only accessible on your Tailscale network) while allowing access from any of your devices.
+
 ## Commands
 
 ### Ask Clawdbot

@@ -8,9 +8,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** API Endpoint - Clawdbot gateway URL */
+  /** API Endpoint - Clawdbot gateway URL. Use http://127.0.0.1:18789 for local, or your Tailscale serve URL (e.g., https://machine-name.tailnet.ts.net) for remote access. */
   "endpoint": string,
-  /** API Token - Gateway authentication token */
+  /** API Token - Find in ~/.clawdbot/clawdbot.json under gateway.auth.token */
   "token": string,
   /** Agent ID - Which Clawdbot agent to use */
   "agentId": string
