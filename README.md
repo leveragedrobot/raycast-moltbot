@@ -94,7 +94,12 @@ This is the default - no configuration changes needed on Clawdbot.
 
 4. Use the local IP as your endpoint, e.g., `http://192.168.1.50:18789`
 
-> **Note:** This exposes the gateway to your local network. Anyone on the same network could connect (though they'd still need your token).
+> **⚠️ Security Warning:** Binding to `0.0.0.0` exposes the gateway to your entire local network. Risks include:
+> - Anyone on the same WiFi can attempt connections
+> - Public WiFi = public exposure
+> - If port forwarding is enabled on your router, it could be internet-accessible
+>
+> The token provides some protection, but **Tailscale (Option C) is strongly recommended** for accessing Clawdbot from other machines. Only use this option on trusted private networks.
 
 ---
 
@@ -133,11 +138,11 @@ This is the default - no configuration changes needed on Clawdbot.
 
 #### Connection Method Comparison
 
-| Method | Security | Works Remotely | Setup Complexity |
-|--------|----------|----------------|------------------|
-| Local | High (localhost only) | No | None |
-| Local Network | Medium (LAN exposure) | No | Low |
-| Tailscale | High (encrypted, private network) | Yes | Medium |
+| Method | Security | Works Remotely | Setup Complexity | Recommended |
+|--------|----------|----------------|------------------|-------------|
+| Local | High (localhost only) | No | None | ✅ Yes |
+| Local Network | ⚠️ Low (LAN exposure) | No | Low | Only on trusted networks |
+| Tailscale | High (encrypted, private) | Yes | Medium | ✅ Yes - best for remote |
 
 ## Commands
 
