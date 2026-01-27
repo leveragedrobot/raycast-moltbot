@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
   "name": "clawdbot",
-  "title": "Clawdbot",
+  "title": "Moltbot",
   "description": "Chat with your local Clawdbot AI assistant",
   "icon": "icon.png",
   "author": "leveragedrobot",
