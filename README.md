@@ -1,4 +1,4 @@
-# Clawdbot for Raycast
+# Moltbot for Raycast
 
 Chat with your local [Clawdbot](https://clawd.bot) AI assistant directly from Raycast.
 
