@@ -8,9 +8,9 @@
 /* eslint-disable @typescript-eslint/ban-types */
 
 type ExtensionPreferences = {
-  /** API Endpoint - Clawdbot gateway URL */
+  /** API Endpoint - Clawdbot gateway URL. Use http://127.0.0.1:18789 for local, or your Tailscale serve URL (e.g., https://machine-name.tailnet.ts.net) for remote access. */
   "endpoint": string,
-  /** API Token - Gateway authentication token */
+  /** API Token - Find in ~/.clawdbot/clawdbot.json under gateway.auth.token */
   "token": string,
   /** Agent ID - Which Clawdbot agent to use */
   "agentId": string
@@ -28,6 +28,10 @@ declare namespace Preferences {
   export type Clipboard = ExtensionPreferences & {}
   /** Preferences accessible in the `selected-text` command */
   export type SelectedText = ExtensionPreferences & {}
+  /** Preferences accessible in the `status` command */
+  export type Status = ExtensionPreferences & {}
+  /** Preferences accessible in the `open-webchat` command */
+  export type OpenWebchat = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -42,5 +46,9 @@ declare namespace Arguments {
   export type Clipboard = {}
   /** Arguments passed to the `selected-text` command */
   export type SelectedText = {}
+  /** Arguments passed to the `status` command */
+  export type Status = {}
+  /** Arguments passed to the `open-webchat` command */
+  export type OpenWebchat = {}
 }
 

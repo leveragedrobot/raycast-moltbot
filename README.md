@@ -1,4 +1,4 @@
-# Clawdbot for Raycast
+# Moltbot for Raycast
 
 Chat with your local [Clawdbot](https://clawd.bot) AI assistant directly from Raycast.
 
@@ -8,6 +8,8 @@ Chat with your local [Clawdbot](https://clawd.bot) AI assistant directly from Ra
 - **Chat with Clawdbot** - Persistent conversations with history
 - **Ask About Clipboard** - Analyze clipboard content with custom prompts
 - **Process Selected Text** - Summarize, explain, translate, fix grammar, and more
+- **Gateway Status** - Check connection health and troubleshoot
+- **Open Webchat** - Launch the Clawdbot web UI in your browser
 
 ## Requirements
 
@@ -36,19 +38,109 @@ Add this to your `~/.clawdbot/clawdbot.json`:
 
 The gateway will hot-reload the config automatically.
 
-### 2. Get Your API Token
+### 2. Find Your API Token
 
-Your gateway token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`.
+Your token is in `~/.clawdbot/clawdbot.json` under `gateway.auth.token`:
 
-### 3. Configure the Extension
+```bash
+cat ~/.clawdbot/clawdbot.json | grep -A 2 '"auth"' | grep token
+```
 
-When you first run a command, Raycast will prompt for:
+### 3. Choose Your Connection Method
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| API Endpoint | `http://127.0.0.1:18789` | Your Clawdbot gateway URL |
-| API Token | (required) | Your gateway auth token |
-| Agent ID | `main` | Which Clawdbot agent to use |
+When you first run a command, Raycast will prompt for your API Endpoint and Token. The endpoint depends on where Clawdbot is running relative to Raycast:
+
+#### Option A: Same Machine (Local)
+
+**Use when:** Raycast and Clawdbot are on the same computer.
+
+| Setting | Value |
+|---------|-------|
+| API Endpoint | `http://127.0.0.1:18789` |
+
+This is the default - no configuration changes needed on Clawdbot.
+
+---
+
+#### Option B: Local Network (Same WiFi/LAN)
+
+**Use when:** Clawdbot runs on another computer on your home/office network.
+
+| Setting | Value |
+|---------|-------|
+| API Endpoint | `http://<clawdbot-machine-ip>:18789` |
+
+**Setup required on the Clawdbot machine:**
+
+1. Find the machine's local IP:
+   ```bash
+   ipconfig getifaddr en0   # WiFi
+   # or
+   ipconfig getifaddr en1   # Ethernet
+   ```
+
+2. Edit `~/.clawdbot/clawdbot.json` and change the gateway bind setting:
+   ```json
+   {
+     "gateway": {
+       "bind": "0.0.0.0"
+     }
+   }
+   ```
+
+3. Restart Clawdbot gateway for changes to take effect.
+
+4. Use the local IP as your endpoint, e.g., `http://192.168.1.50:18789`
+
+> **⚠️ Security Warning:** Binding to `0.0.0.0` exposes the gateway to your entire local network. Risks include:
+> - Anyone on the same WiFi can attempt connections
+> - Public WiFi = public exposure
+> - If port forwarding is enabled on your router, it could be internet-accessible
+>
+> The token provides some protection, but **Tailscale (Option C) is strongly recommended** for accessing Clawdbot from other machines. Only use this option on trusted private networks.
+
+---
+
+#### Option C: Remote via Tailscale (Recommended for Remote Access)
+
+**Use when:** You want secure access from anywhere - home, office, mobile, etc.
+
+| Setting | Value |
+|---------|-------|
+| API Endpoint | `https://<machine-name>.<tailnet>.ts.net` |
+
+**Setup required on the Clawdbot machine:**
+
+1. Install [Tailscale](https://tailscale.com) on both machines and sign in to the same account.
+
+2. On the Clawdbot machine, set up Tailscale serve:
+   ```bash
+   tailscale serve --bg 18789
+   ```
+
+3. Get your serve URL:
+   ```bash
+   tailscale serve status
+   ```
+   Output: `https://machine-name.tailca3a37.ts.net`
+
+4. Use that URL as your API Endpoint.
+
+**Benefits:**
+- Encrypted connection (HTTPS)
+- Works from anywhere (coffee shop, mobile hotspot, etc.)
+- Only accessible to devices on your Tailscale network
+- No need to open firewall ports
+
+---
+
+#### Connection Method Comparison
+
+| Method | Security | Works Remotely | Setup Complexity | Recommended |
+|--------|----------|----------------|------------------|-------------|
+| Local | High (localhost only) | No | None | ✅ Yes |
+| Local Network | ⚠️ Low (LAN exposure) | No | Low | Only on trusted networks |
+| Tailscale | High (encrypted, private) | Yes | Medium | ✅ Yes - best for remote |
 
 ## Commands
 
@@ -82,6 +174,53 @@ Select text in any app, then run this command to:
 - Make Bullet Points
 
 **Tip:** Assign a keyboard shortcut in Raycast preferences for quick access.
+
+### Gateway Status
+Check if the Clawdbot gateway is reachable and view connection details:
+- Connection status (healthy/unreachable)
+- Endpoint URL and latency
+- Troubleshooting tips if connection fails
+
+### Open Webchat
+Quickly launch the Clawdbot web UI in your default browser. Opens the same URL configured as your API Endpoint.
+
+## Webchat Setup (Remote Access)
+
+When accessing the Clawdbot web UI from a different machine (via Tailscale or local network), you'll need to complete device pairing.
+
+### Initial Connection
+
+1. Open the webchat URL in your browser (e.g., `https://machine-name.tailca3a37.ts.net`)
+
+2. In the **Gateway Access** section:
+   - **WebSocket URL**: Should auto-populate (e.g., `wss://machine-name.tailca3a37.ts.net`)
+   - **Gateway Token**: Enter your token from `~/.clawdbot/clawdbot.json` (`gateway.auth.token`)
+   - **Default Session Key**: `main` (or your preferred agent)
+
+3. Click **Connect**
+
+### Device Pairing
+
+If you see "disconnected (1008): pairing required", your browser needs to be approved as a trusted device:
+
+**Option A: Approve from the Clawdbot machine**
+
+On the machine running Clawdbot, open the local web UI (`http://127.0.0.1:18789`) and approve the pending device request.
+
+**Option B: Approve via SSH**
+
+Check for pending requests:
+```bash
+cat ~/.clawdbot/devices/pending.json
+```
+
+If there's a pending request, you can approve it by moving it to paired.json (requires generating a token) or restart the gateway and re-initiate pairing from the web UI.
+
+### Verifying Connection
+
+Once connected, the web UI should show:
+- **Status**: Connected (green)
+- **Health**: Online
 
 ## Troubleshooting
 
