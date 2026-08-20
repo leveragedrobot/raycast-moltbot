@@ -46,17 +46,23 @@ export function getPreferences(): Preferences {
 export async function sendMessage(
   messages: Message[],
   onStream?: (chunk: string) => void,
+  sessionUser?: string,
 ): Promise<string> {
   const prefs = getPreferences();
   const url = `${prefs.endpoint}/v1/chat/completions`;
   const agentId = prefs.agentId || "main";
 
-  const body = {
-    model: `clawdbot:${agentId}`,
+  // OpenClaw maps OpenAI `user` onto a durable agent session. One-shot
+  // commands omit it so each ask gets a fresh session. Chat passes a
+  // per-conversation id.
+  const body: Record<string, unknown> = {
+    model: `openclaw/${agentId}`,
     messages,
     stream: !!onStream,
-    user: "raycast-extension", // maintains session state across calls
   };
+  if (sessionUser) {
+    body.user = sessionUser;
+  }
 
   const response = await fetch(url, {
     method: "POST",
@@ -151,10 +157,10 @@ export async function submitAsyncMessage(
       Authorization: `Bearer ${prefs.token}`,
     },
     body: JSON.stringify({
-      model: `clawdbot:${agentId}`,
+      model: `openclaw/${agentId}`,
       messages,
       sessionKey: `raycast:${conversationId}`,
-      user: "raycast-extension",
+      user: `raycast:chat:${conversationId}`,
     }),
   });
 

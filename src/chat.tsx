@@ -286,17 +286,21 @@ function ConversationView({
       } catch {
         // Fallback to synchronous streaming if async endpoint unavailable
         let fullResponse = "";
-        await sendMessage(apiMessages, (chunk) => {
-          fullResponse += chunk;
-          streamingRef.current = fullResponse;
+        await sendMessage(
+          apiMessages,
+          (chunk) => {
+            fullResponse += chunk;
+            streamingRef.current = fullResponse;
 
-          // Throttle UI updates to every 100ms to prevent flickering
-          const now = Date.now();
-          if (now - lastUpdateRef.current > 100) {
-            lastUpdateRef.current = now;
-            setStreamingContent(fullResponse);
-          }
-        });
+            // Throttle UI updates to every 100ms to prevent flickering
+            const now = Date.now();
+            if (now - lastUpdateRef.current > 100) {
+              lastUpdateRef.current = now;
+              setStreamingContent(fullResponse);
+            }
+          },
+          `raycast:chat:${currentConv.id}`,
+        );
 
         // Final update to ensure all content is shown
         setStreamingContent(fullResponse);
