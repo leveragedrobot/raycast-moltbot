@@ -52,24 +52,24 @@ export async function sendMessage(
   const url = `${prefs.endpoint}/v1/chat/completions`;
   const agentId = prefs.agentId || "main";
 
-  // OpenClaw maps OpenAI `user` onto a durable agent session. One-shot
-  // commands omit it so each ask gets a fresh session. Chat passes a
-  // per-conversation id.
+  // Chat Completions ignores OpenAI `user` for session routing. Durable
+  // threads send x-openclaw-session-key; one-shot commands omit it.
   const body: Record<string, unknown> = {
     model: `openclaw/${agentId}`,
     messages,
     stream: !!onStream,
   };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${prefs.token}`,
+  };
   if (sessionUser) {
-    body.user = sessionUser;
+    headers["x-openclaw-session-key"] = sessionUser;
   }
 
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${prefs.token}`,
-    },
+    headers,
     body: JSON.stringify(body),
   });
 
@@ -159,8 +159,7 @@ export async function submitAsyncMessage(
     body: JSON.stringify({
       model: `openclaw/${agentId}`,
       messages,
-      sessionKey: `raycast:${conversationId}`,
-      user: `raycast:chat:${conversationId}`,
+      sessionKey: `raycast:chat:${conversationId}`,
     }),
   });
 
