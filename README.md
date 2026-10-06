@@ -1,3 +1,5 @@
+> **Archived.** This repo is the original source of the OpenClaw extension for Raycast (first published as Clawdbot, then Moltbot). The maintained extension now lives in the Raycast monorepo at [raycast/extensions → extensions/openclaw](https://github.com/raycast/extensions/tree/main/extensions/openclaw) and installs from the [Raycast Store](https://www.raycast.com/leveragedrobot/openclaw). Please file issues and pull requests there. Thanks to asaph_kotzin, RaviTharuma and Olli0103 for carrying it forward.
+
 # Moltbot for Raycast
 
 Chat with your local [Clawdbot](https://clawd.bot) AI assistant directly from Raycast.
