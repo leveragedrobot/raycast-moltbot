@@ -46,24 +46,30 @@ export function getPreferences(): Preferences {
 export async function sendMessage(
   messages: Message[],
   onStream?: (chunk: string) => void,
+  sessionUser?: string,
 ): Promise<string> {
   const prefs = getPreferences();
   const url = `${prefs.endpoint}/v1/chat/completions`;
   const agentId = prefs.agentId || "main";
 
-  const body = {
-    model: `clawdbot:${agentId}`,
+  // Chat Completions ignores OpenAI `user` for session routing. Durable
+  // threads send x-openclaw-session-key; one-shot commands omit it.
+  const body: Record<string, unknown> = {
+    model: `openclaw/${agentId}`,
     messages,
     stream: !!onStream,
-    user: "raycast-extension", // maintains session state across calls
   };
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${prefs.token}`,
+  };
+  if (sessionUser) {
+    headers["x-openclaw-session-key"] = sessionUser;
+  }
 
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${prefs.token}`,
-    },
+    headers,
     body: JSON.stringify(body),
   });
 
@@ -151,10 +157,9 @@ export async function submitAsyncMessage(
       Authorization: `Bearer ${prefs.token}`,
     },
     body: JSON.stringify({
-      model: `clawdbot:${agentId}`,
+      model: `openclaw/${agentId}`,
       messages,
-      sessionKey: `raycast:${conversationId}`,
-      user: "raycast-extension",
+      sessionKey: `raycast:chat:${conversationId}`,
     }),
   });
 
